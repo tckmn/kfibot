@@ -4,7 +4,7 @@ db = SQLite3::Database.new 'learn.db'
 
 action, key, val = gets.chomp.split ' ', 3
 
-USAGE_MSG = 'usage: !learn ADD {key} {val} or !learn DEL {key} or !learn LIST'
+USAGE_MSG = 'usage: !learn ADD {key} {val} or !learn DEL {key} or !learn LIST or !learn RAW {key}'
 
 case action ? action.downcase : nil
 when 'add'
@@ -46,6 +46,12 @@ when 'list'
         puts db.execute('select key from LearnDb where val != "$RUBY_IMPL"')
             .map(&:first) * ', '
         puts 'for a list of builtin commands, use !commands'
+    end
+when 'raw'
+    if key.nil? || !val.nil?
+        puts USAGE_MSG
+    else
+        puts db.execute('select val from LearnDb where key = ?', key)[0]
     end
 else
     puts USAGE_MSG

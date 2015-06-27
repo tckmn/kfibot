@@ -123,6 +123,15 @@ bot = Cinch::Bot.new do
                             stdin.close_write
                         end
                     else
+                        args = args ? args.split : []
+                        (1..9).each do |i|
+                            val.gsub!(/\$#{i}\(([^)]+)\)/) { args[i-1] || $1 }
+                            val.gsub!("$#{i}") { args[i-1] }
+                        end
+                        val.gsub!(/\$0\(([^)]+)\)/) { args.join $1 }
+                        val.gsub!('$0', args.join(' '))
+                        val.gsub!(/\$CHOOSE\(([^)]+)\)/) { $1.split('|').sample }
+                        val.gsub!('$NICK', m.user.nick)
                         reply m, val
                     end
                 end

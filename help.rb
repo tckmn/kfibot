@@ -7,7 +7,7 @@ else
     case cmd.downcase
     when 'learn'
         puts 'Manipulates the LearnDb. Use !help learn ADD, !help learn ' +
-            'DEL, and !help learn LIST for more information.'
+            'DEL, !help learn LIST, and !help learn RAW for more information.'
     when 'learn add'
         puts 'Add a term to the LearnDb. Example: after !learn ADD foo ' +
             '(some text), !foo results in "(some text)".'
@@ -16,6 +16,9 @@ else
     when 'learn list'
         puts 'Shows a list of user-defined commands (ones defined with ' +
             '!learn that are stored directly in the LearnDb).'
+    when 'learn raw'
+        puts 'Show the raw text from the LearnDb of a command, before ' +
+            'substituting $COMMANDS.'
     when 'learnimpl', 'learnimpl add', 'learnimpl del'
         puts 'Use !learnimpl ADD foo to make !foo run the file called ' +
             'foo.rb; use !learnimpl DEL foo to undo this. Only usable by ' +
@@ -28,6 +31,8 @@ else
             '!tell {user} {some message}. Works with both nicks and ' +
             'registered users\' usernames (the one that shows up when you ' +
             '/whois someone).'
+    when 'ruby'
+        puts 'Eval ruby code (in a safe sandbox).'
     when 'restart'
         puts 'Restarts the bot.'
     when 'help'
