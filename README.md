@@ -1,5 +1,8 @@
 # kfibot
 
+An IRC bot with a flexible learn database, written in Ruby with the Cinch
+framework.
+
 Dependencies:
 
     sudo gem install cinch
