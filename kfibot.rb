@@ -109,7 +109,9 @@ bot = Cinch::Bot.new do
 
     on :notice do |m|
         if m.message.index 'You are now identified for'
-            bot.join '##kbdfire-bottest'
+            $config[:channels].each do |c|
+                bot.join c
+            end
         end
     end
 

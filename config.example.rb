@@ -1,4 +1,5 @@
 $config = {
     nick: 'MyIRCBotNick',
-    password: 'MyIRCBotPassword'
+    password: 'MyIRCBotPassword',
+    channels: ['#foo', '#bar', '#baz']
 }
