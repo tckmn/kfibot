@@ -1,0 +1,7 @@
+# bot files
+config.rb
+learn.db
+log.txt
+
+# vim
+.*.sw?
