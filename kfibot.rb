@@ -59,8 +59,12 @@ bot = Cinch::Bot.new do
 
     db.execute <<-SQL
         create table if not exists LearnDb (
-            key TEXT,
-            val TEXT
+            key TEXT, val TEXT
+        );
+    SQL
+    db.execute <<-SQL
+        create table if not exists Tell (
+            to_user TEXT, from_user TEXT, msg TEXT
         );
     SQL
 
@@ -90,9 +94,11 @@ bot = Cinch::Bot.new do
                             stdin.puts args
                             while line = stdout.gets
                                 line = line.chomp
-                                if line == '$REQUEST_WHOIS'
-                                    w = query_whois m.user.nick
-                                    stdin.puts w
+                                case line
+                                when '$REQUEST_NICK'
+                                    stdin.puts m.user.nick
+                                when '$REQUEST_WHOIS'
+                                    stdin.puts query_whois m.user.nick
                                 else
                                     reply m, line
                                 end
@@ -121,6 +127,12 @@ bot = Cinch::Bot.new do
         else
             reply m, 'welcome! I am a robit. Type !help to get assistance ' +
                 'on how to use me.'
+            w = query_whois m.user.nick
+            db.execute('select from_user, msg from Tell where to_user = ? or to_user = ?',
+                [m.user.nick, w]).each do |from_user, msg|
+                reply m, "you have a message from #{from_user}: #{msg}"
+            end
+            db.execute('delete from Tell where to_user = ? or to_user = ?', [m.user.nick, w])
         end
     end
 end

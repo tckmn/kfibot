@@ -23,6 +23,11 @@ else
     when 'commands'
         puts 'Shows a list of built-in commands (ones defined with ' +
             '!learnimpl that have a native Ruby implementation).'
+    when 'tell'
+        puts 'Queue a message for a user that is not currently in the room: ' +
+            '!tell {user} {some message}. Works with both nicks and ' +
+            'registered users\' usernames (the one that shows up when you ' +
+            '/whois someone).'
     when 'restart'
         puts 'Restarts the bot.'
     when 'help'
