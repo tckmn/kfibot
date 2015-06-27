@@ -57,6 +57,15 @@ bot = Cinch::Bot.new do
 
     db = SQLite3::Database.new 'learn.db'
 
+    creating_learndb = db.execute <<-SQL
+        select count(*)
+        from sqlite_master
+        where
+            type = "table" and
+            name = "LearnDb"
+    SQL
+    creating_learndb = creating_learndb[0][0] == 0
+
     db.execute <<-SQL
         create table if not exists LearnDb (
             key TEXT, val TEXT
@@ -67,6 +76,14 @@ bot = Cinch::Bot.new do
             to_user TEXT, from_user TEXT, msg TEXT
         );
     SQL
+    if creating_learndb
+        Dir["#{File.expand_path(File.dirname(__FILE__))}/*.rb"].each do |f|
+            cmd_name = f.match(/\/([^.\/]+).rb$/)
+            if cmd_name && cmd_name[1] != 'kfibot' && cmd_name[1] != 'config'
+                db.execute 'insert into LearnDb values (?, "$RUBY_IMPL")', cmd_name[1]
+            end
+        end
+    end
 
     on :message, /(.*)/ do |m, txt|
         File.open('log.txt', 'a+') {|f|
@@ -125,8 +142,8 @@ bot = Cinch::Bot.new do
         if m.user.nick == $config[:nick]
             reply m, 'Bot started.', true
         else
-            reply m, 'welcome! I am a robit. Type !help to get assistance ' +
-                'on how to use me.'
+            reply m, 'welcome! I am a robit, beep boop. Type !help to get ' +
+                'assistance on how to use me.'
             w = query_whois m.user.nick
             db.execute('select from_user, msg from Tell where to_user = ? or to_user = ?',
                 [m.user.nick, w]).each do |from_user, msg|
