@@ -9,4 +9,4 @@ Dependencies:
     sudo gem install cinch-identify
     sudo gem install sqlite3
 
-Create files called `username` and `password` and place bot credentials there.
+Edit the file `config.example.rb` and rename it to `config.rb` to get started.

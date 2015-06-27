@@ -5,14 +5,14 @@ require 'cinch/plugins/identify'
 require 'sqlite3'
 require 'open3'
 
-$botnick = open('username').read
+require_relative 'config.rb'
 
 # a bunch of ugly hacks...
 class Cinch::Callback
     def reply m, txt, suppress_ping=false
         txt = "#{m.user.nick}: " + txt unless suppress_ping
         File.open('log.txt', 'a+') {|f|
-            f.puts "[#{m.time}] <#{$botnick}> #{txt}"
+            f.puts "[#{m.time}] <#{$config[:nick]}> #{txt}"
         }
         m.reply txt
     end
@@ -45,12 +45,12 @@ bot = Cinch::Bot.new do
 
     configure do |c|
         c.server = 'irc.freenode.org'
-        c.nick = $botnick
+        c.nick = $config[:nick]
         c.channels = []
         c.plugins.plugins = [Cinch::Plugins::Identify]
         c.plugins.options[Cinch::Plugins::Identify] = {
-            :username => $botnick,
-            :password => open('password').read,
+            :username => $config[:nick],
+            :password => $config[:password],
             :type => :nickserv
         }
     end
@@ -114,7 +114,7 @@ bot = Cinch::Bot.new do
     end
 
     on :join do |m|
-        if m.user.nick == $botnick
+        if m.user.nick == $config[:nick]
             reply m, 'Bot started.', true
         else
             reply m, 'welcome! I am a robit. Type !help to get assistance ' +
