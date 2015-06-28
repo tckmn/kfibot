@@ -95,7 +95,10 @@ bot = Cinch::Bot.new do
         suppress_unknown = false
 
         # try to automatically answer 1-3 word questions
-        q = txt.match(/^w[\w']+(?:\s+is)?(?:\s+the)?\s+(?<q>[^ ]+?)\?*$|^(?:the\s+)?(?<q>[^ ]+)\?+$/i)
+        q = txt.match(/
+                ^w[\w']+(?:\s+(?:is|are))?(?:\s+the)?\s+(?<q>[^ ]+?)\?*$|
+                ^(?:the\s+)?(?<q>[^ ]+)\?+$
+            /xi)
         if q
             txt = "!#{q['q']}?"
             suppress_unknown = true
