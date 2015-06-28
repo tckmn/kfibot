@@ -83,6 +83,8 @@ bot = Cinch::Bot.new do
                 db.execute 'insert into LearnDb values (?, "$RUBY_IMPL")', cmd_name[1]
             end
         end
+        # sample user-defined command
+        db.execute 'insert into LearnDb values ("choose", "$CHOOSE($0(|))")'
     end
 
     on :message, /(.*)/ do |m, txt|
