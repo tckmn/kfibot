@@ -117,7 +117,7 @@ bot = Cinch::Bot.new do
             unless cmd.nil?  # message might consist of only prefix...
                 val = db.execute('select val from LearnDb where key = ?', cmd).first
                 if val.nil?
-                    reply m, "unknown command #{cmd}" unless supress_unknown
+                    reply m, "unknown command #{cmd}" unless suppress_unknown
                 else
                     val = val.first
                     if val == '$RUBY_IMPL'

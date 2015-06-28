@@ -2,8 +2,8 @@ code = gets.chomp
 
 mthread = nil
 Thread.new {
-    sleep 3
-    mthread[:evalResult] = '3 second timeout reached.'
+    sleep 2
+    mthread[:evalResult] = '2 second timeout reached.'
     mthread.kill
 }
 mthread = Thread.new {

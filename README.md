@@ -9,4 +9,8 @@ Dependencies:
     sudo gem install cinch-identify
     sudo gem install sqlite3
 
+If you want the `!js` command to work, you also need:
+
+    sudo npm install -g sandbox
+
 Edit the file `config.example.rb` and rename it to `config.rb` to get started.
