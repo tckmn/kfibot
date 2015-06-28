@@ -134,10 +134,10 @@ bot = Cinch::Bot.new do
             unless cmd.nil?  # message might consist of only prefix...
                 # check if user is allowed to run this command
                 w = query_whois m.user.nick
-                groups = db.execute('select group_name from Groups where ' +
-                    'user = ?', w).map(&:first)
+                groups = w ? db.execute('select group_name from Groups where ' +
+                    'user = ?', w).map(&:first) : []
                 privs = db.execute('select privilege, match from Privileges ' +
-                    'where ? glob match', cmd)
+                    'where ? glob match', (cmd + ' ' + args).downcase)
                 allow = (privs.find{|p| !p[0].index('@') && p[0].split[1] == w } ||
                     privs.find{|p| !p[0].index('@@') && groups.index(p[0].split[1][1..-1]) } ||
                     privs.find{|p| p[0].index('@@registered') && w } ||
