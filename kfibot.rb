@@ -86,9 +86,9 @@ bot = Cinch::Bot.new do
         );
     SQL
     if creating_learndb
-        Dir["#{File.expand_path(File.dirname(__FILE__))}/*.rb"].each do |f|
+        Dir["#{File.expand_path(File.dirname(__FILE__))}/commands/*.rb"].each do |f|
             cmd_name = f.match(/\/([^.\/]+).rb$/)
-            if cmd_name && cmd_name[1] != 'kfibot' && cmd_name[1] != 'config'
+            if cmd_name
                 db.execute 'insert into LearnDb values (?, "$RUBY_IMPL")', cmd_name[1]
             end
         end
@@ -128,7 +128,7 @@ bot = Cinch::Bot.new do
                 else
                     val = val.first
                     if val == '$RUBY_IMPL'
-                        Open3.popen3("ruby #{cmd}.rb") do |stdin, stdout, stderr|
+                        Open3.popen3("ruby commands/#{cmd}.rb") do |stdin, stdout, stderr|
                             stdin.puts args
                             while line = stdout.gets
                                 line = line.chomp
