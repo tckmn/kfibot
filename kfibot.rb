@@ -92,6 +92,15 @@ bot = Cinch::Bot.new do
             f.puts "[#{m.time}] <#{m.user.nick}> #{txt}"
         }
 
+        suppress_unknown = false
+
+        # try to automatically answer 1-3 word questions
+        q = txt.match(/^w[\w']+(?:\s+is)?(?:\s+the)?\s+(?<q>[^ ]+?)\?*$|^(?:the\s+)?(?<q>[^ ]+)\?+$/i)
+        if q
+            txt = "!#{q['q']}?"
+            suppress_unknown = true
+        end
+
         if txt[0...prefix.length] == prefix
             txt = txt[prefix.length..-1]
             cmd, args = txt.split ' ', 2
@@ -105,7 +114,7 @@ bot = Cinch::Bot.new do
             unless cmd.nil?  # message might consist of only prefix...
                 val = db.execute('select val from LearnDb where key = ?', cmd).first
                 if val.nil?
-                    reply m, "unknown command #{cmd}"
+                    reply m, "unknown command #{cmd}" unless supress_unknown
                 else
                     val = val.first
                     if val == '$RUBY_IMPL'
