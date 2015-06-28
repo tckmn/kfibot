@@ -9,19 +9,24 @@ require_relative 'config.rb'
 
 # a bunch of ugly hacks...
 class Cinch::Callback
+    def logf txt
+        File.open('log.txt', 'a+') {|f|
+            f.puts txt
+        }
+    end
+
     def reply m, txt, suppress_ping=false
         if txt.length > 800
             m.reply 'Max message length (800) reached. Truncated response shown below:'
             txt = txt[0..800]
         end
         txt = "#{m.user.nick}: " + txt unless suppress_ping
-        File.open('log.txt', 'a+') {|f|
-            f.puts "[#{m.time}] <#{$config[:nick]}> #{txt}"
-        }
+        logf "[#{m.time}] <#{$config[:nick]}> #{txt}"
         m.reply txt
     end
 end
 $whois_return = nil
+$whois_cache = {}
 class Cinch::IRC
     alias old_on_318 on_318
     alias old_on_330 on_330
@@ -35,13 +40,13 @@ class Cinch::IRC
     end
 end
 def query_whois user
+    return $whois_cache[user] if $whois_cache[user]
     $whois_return = nil
     bot.irc.send "whois #{user}"
     sleep 0.1 until $whois_return
-    p $whois_return
-    r = $whois_return
+    $whois_cache[user] = $whois_return[2]
     $whois_return = nil
-    r[2]
+    $whois_cache[user]
 end
 
 bot = Cinch::Bot.new do
@@ -92,16 +97,14 @@ bot = Cinch::Bot.new do
     end
 
     on :message, /(.*)/ do |m, txt|
-        File.open('log.txt', 'a+') {|f|
-            f.puts "[#{m.time}] <#{m.user.nick}> #{txt}"
-        }
+        logf "[#{m.time}] <#{m.user.nick}> #{txt}"
 
         suppress_unknown = false
 
         # try to automatically answer 1-3 word questions
         q = txt.match(/
-                ^w[\w']+(?:\s+(?:is|are))?(?:\s+the)?\s+(?<q>[^ ]+?)\?*$|
-                ^(?:the\s+)?(?<q>[^ ]+)\?+$
+                ^w[\w']+(?:\s+(?:is|are))?(?:\s+(?:the|a))?\s+(?<q>[^ ]+?)\?*$|
+                ^(?:(?:the|a)\s+)?(?<q>[^ ]+)\?+$
             /xi)
         if q
             txt = "!#{q['q']}?"
@@ -165,7 +168,17 @@ bot = Cinch::Bot.new do
         end
     end
 
+    on :nick do |m|
+        old, new = m.raw.match(/^:([^!]+)!/)[1], m.user.nick
+        if $whois_cache[old]
+            $whois_cache[new] = $whois_cache[old]
+            $whois_cache.delete old
+        end
+        logf "[#{m.time}] -!- #{old} is now known as #{new}"
+    end
+
     on :join do |m|
+        logf "[#{m.time}] -!- #{m.user.nick} has joined"
         if m.user.nick == $config[:nick]
             reply m, 'Bot started.', true
         else
@@ -178,6 +191,16 @@ bot = Cinch::Bot.new do
             end
             db.execute('delete from Tell where to_user = ? or to_user = ?', [m.user.nick, w])
         end
+    end
+
+    on :leaving do |m|
+        if m.params.length == 3
+            logf "[#{m.time}] -!- #{m.user.nick} was kicked from " +
+                "#{m.params[0]} by #{m.params[1]} (#{m.params[2]})"
+        else
+            logf "[#{m.time}] -!- #{m.user.nick} has left (#{m.params[0]})"
+        end
+        $whois_cache.delete m.user.nick
     end
 end
 
