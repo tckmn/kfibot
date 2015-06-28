@@ -1,5 +1,6 @@
 $config = {
     nick: 'MyIRCBotNick',
     password: 'MyIRCBotPassword',
-    channels: ['#foo', '#bar', '#baz']
+    channels: ['#foo', '#bar', '#baz'],
+    logfile: 'log.txt'
 }

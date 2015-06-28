@@ -8,11 +8,11 @@ require 'open3'
 require_relative 'config.rb'
 
 # a bunch of ugly hacks...
+$config[:logfile] = File.open($config[:logfile], 'a+')
 class Cinch::Callback
     def logf txt
-        File.open('log.txt', 'a+') {|f|
-            f.puts txt
-        }
+        $config[:logfile].puts txt
+        $config[:logfile].flush  # FOR DEBUGGING ONLY!!!!!
     end
 
     def reply m, txt, suppress_ping=false
