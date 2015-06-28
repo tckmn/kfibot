@@ -10,6 +10,10 @@ require_relative 'config.rb'
 # a bunch of ugly hacks...
 class Cinch::Callback
     def reply m, txt, suppress_ping=false
+        if txt.length > 800
+            m.reply 'Max message length (800) reached. Truncated response shown below:'
+            txt = txt[0..800]
+        end
         txt = "#{m.user.nick}: " + txt unless suppress_ping
         File.open('log.txt', 'a+') {|f|
             f.puts "[#{m.time}] <#{$config[:nick]}> #{txt}"
