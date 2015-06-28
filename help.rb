@@ -32,7 +32,9 @@ else
             'registered users\' usernames (the one that shows up when you ' +
             '/whois someone).'
     when 'ruby'
-        puts 'Eval ruby code (in a safe sandbox).'
+        puts 'Eval Ruby code (in a safe sandbox).'
+    when 'js'
+        puts 'Eval JavaScript code (node.js, in a safe sandbox).'
     when 'restart'
         puts 'Restarts the bot.'
     when 'help'
