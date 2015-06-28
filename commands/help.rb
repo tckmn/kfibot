@@ -35,6 +35,20 @@ else
         puts 'Eval Ruby code (in a safe sandbox).'
     when 'js'
         puts 'Eval JavaScript code (node.js, in a safe sandbox).'
+    when 'priv'
+        puts "Manipulates users' priviliges with certain commands. Takes " +
+            "four options. The first is ADD or DEL (self-explanatory), " +
+            "second is ALLOW or DISALLOW (also obvious), third is a " +
+            "username (found via /whois, not a nick), a @groupname, @@all, " +
+            "or @@registered, and fourth is a pattern used to decide when " +
+            "the rule applies (for example, use a pattern of 'help*' to " +
+            "allow or disallow users from using the help command)."
+    when 'group', 'group add', 'group del', 'group list'
+        puts 'Creates groups for use with !priv (see !help priv). Use ' +
+            '!group ADD {groupname} {username} to add someone to a group ' +
+            '(this must be the name found via /whois, not the nick), and ' +
+            '!group DEL {groupname} {username} to do the reverse. !group ' +
+            'LIST is self-explanatory.'
     when 'restart'
         puts 'Restarts the bot.'
     when 'help'

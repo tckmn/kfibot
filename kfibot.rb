@@ -85,6 +85,16 @@ bot = Cinch::Bot.new do
             to_user TEXT, from_user TEXT, msg TEXT
         );
     SQL
+    db.execute <<-SQL
+        create table if not exists Privileges (
+            privilege TEXT, match TEXT
+        );
+    SQL
+    db.execute <<-SQL
+        create table if not exists Groups (
+            user TEXT, group_name TEXT
+        );
+    SQL
     if creating_learndb
         Dir["#{File.expand_path(File.dirname(__FILE__))}/commands/*.rb"].each do |f|
             cmd_name = f.match(/\/([^.\/]+).rb$/)
@@ -122,7 +132,27 @@ bot = Cinch::Bot.new do
                 # while :; do ./kfibot.rb; done
             end
             unless cmd.nil?  # message might consist of only prefix...
-                val = db.execute('select val from LearnDb where key = ?', cmd).first
+                # check if user is allowed to run this command
+                w = query_whois m.user.nick
+                groups = db.execute('select group_name from Groups where ' +
+                    'user = ?', w).map(&:first)
+                privs = db.execute('select privilege, match from Privileges ' +
+                    'where ? glob match', cmd)
+                allow = (privs.find{|p| !p[0].index('@') && p[0].split[1] == w } ||
+                    privs.find{|p| !p[0].index('@@') && groups.index(p[0].split[1][1..-1]) } ||
+                    privs.find{|p| p[0].index('@@registered') && w } ||
+                    privs.find{|p| p[0].index('@@all') } ||
+                    ['allow'])
+
+                val = if allow[0].split[0].downcase == 'disallow'
+                    reply m, 'you are not allowed to execute this command ' +
+                        "(rule: '#{allow[0]}' for match '#{allow[1]}')"
+                    suppress_unknown = true
+                    nil
+                else
+                    db.execute('select val from LearnDb where key = ?', cmd).first
+                end
+
                 if val.nil?
                     reply m, "unknown command #{cmd}" unless suppress_unknown
                 else
