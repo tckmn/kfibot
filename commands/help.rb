@@ -58,7 +58,8 @@ else
     when 'voice'
         puts 'Give or take voice from a user, !voice {ADD|DEL} {nick}. To ' +
             'let only voiced users talk, use !voice ONLY ON, and !voice ' +
-            'ONLY OFF to reverse this.'
+            'ONLY OFF to reverse this. To voice yourself, use the shorthand ' +
+            'form of just !voice.'
     when 'mute'
         puts 'Mute or unmute a user, !mute {ADD|DEL} {mask}. To list all ' +
             'muted users, !mute LIST. See also !help mask.'

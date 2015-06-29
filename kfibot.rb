@@ -27,9 +27,12 @@ class Cinch::Callback
 end
 $whois_return = nil
 $whois_cache = {}
+$echo_bans = $echo_mutes = false
 class Cinch::IRC
     alias old_on_318 on_318
     alias old_on_330 on_330
+    alias old_on_367 on_367
+    alias old_on_368 on_368
     def on_318 msg, events
         $whois_return = [nil, nil, nil, nil] unless $whois_return
         old_on_318 msg, events
@@ -37,6 +40,28 @@ class Cinch::IRC
     def on_330 msg, events
         $whois_return = msg.params
         old_on_330 msg, events
+    end
+    def on_367 msg, events
+        if $echo_bans
+            m = "#{msg.params[2]} at #{Time.at msg.params[4].to_i}"
+            msg.reply m
+            logf m
+        end
+        old_on_367 msg, events
+    end
+    def on_368 msg, events
+        $echo_bans = false
+        old_on_368 msg, events
+    end
+    def on_728 msg, events
+        if $echo_mutes
+            m = "#{msg.params[3]} at #{Time.at msg.params[5].to_i}"
+            msg.reply m
+            logf m
+        end
+    end
+    def on_729 msg, events
+        $echo_mutes = false
     end
 end
 def query_whois user
@@ -187,8 +212,9 @@ bot = Cinch::Bot.new do
                                 when '$REQUEST_CHANNEL'
                                     stdin.puts m.channel.name
                                 when /^\$REQUEST_SEND_CMD (.+)$/
-                                    puts 'command requested'
                                     bot.irc.send $1
+                                when /^\$REQUEST_EVAL (.+)$/
+                                    eval $1
                                 else
                                     reply m, line
                                 end
