@@ -95,6 +95,11 @@ bot = Cinch::Bot.new do
             user TEXT, group_name TEXT
         );
     SQL
+    db.execute <<-SQL
+        create table if not exists Seen (
+            user TEXT primary key, seen TEXT, message TEXT
+        );
+    SQL
     if creating_learndb
         Dir["#{File.expand_path(File.dirname(__FILE__))}/commands/*.rb"].each do |f|
             cmd_name = f.match(/\/([^.\/]+).rb$/)
@@ -107,7 +112,12 @@ bot = Cinch::Bot.new do
     end
 
     on :message, /(.*)/ do |m, txt|
-        logf "[#{m.time}] <#{m.user.nick}> #{txt}"
+        fmt_msg = "[#{m.time}] <#{m.user.nick}> #{txt}"
+        logf fmt_msg
+
+        w = query_whois m.user.nick
+        db.execute('insert or replace into Seen values (?, ?, ?)',
+            [(w || m.user.nick), fmt_msg, fmt_msg])
 
         suppress_unknown = false
 
@@ -133,11 +143,10 @@ bot = Cinch::Bot.new do
             end
             unless cmd.nil?  # message might consist of only prefix...
                 # check if user is allowed to run this command
-                w = query_whois m.user.nick
                 groups = w ? db.execute('select group_name from Groups where ' +
                     'user = ?', w).map(&:first) : []
                 privs = db.execute('select privilege, match from Privileges ' +
-                    'where ? glob match', (cmd + ' ' + args).downcase)
+                    'where ? glob match', (cmd + (args ? (' ' + args) : '')).downcase)
                 allow = (privs.find{|p| !p[0].index('@') && p[0].split[1] == w } ||
                     privs.find{|p| !p[0].index('@@') && groups.index(p[0].split[1][1..-1]) } ||
                     privs.find{|p| p[0].index('@@registered') && w } ||
@@ -224,12 +233,18 @@ bot = Cinch::Bot.new do
     end
 
     on :leaving do |m|
-        if m.params.length == 3
-            logf "[#{m.time}] -!- #{m.user.nick} was kicked from " +
-                "#{m.params[0]} by #{m.params[1]} (#{m.params[2]})"
+        fmt_msg = if m.params.length == 3
+            "[#{m.time}] -!- #{m.user.nick} was kicked from #{m.params[0]} " +
+                "by #{m.params[1]} (#{m.params[2]})"
         else
-            logf "[#{m.time}] -!- #{m.user.nick} has left (#{m.params[0]})"
+            "[#{m.time}] -!- #{m.user.nick} has left (#{m.params[0]})"
         end
+        logf fmt_msg
+
+        w = query_whois(m.user.nick) || m.user.nick
+        db.execute('insert or replace into Seen values (?, ?, ' +
+            '(select message from Seen where user = ?))', [w, fmt_msg, w])
+
         $whois_cache.delete m.user.nick
     end
 end
