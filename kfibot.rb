@@ -109,6 +109,12 @@ bot = Cinch::Bot.new do
         end
         # sample user-defined command
         db.execute 'insert into LearnDb values ("choose", "$CHOOSE($0(|))")'
+        # sample privilges (NOTE: remember to add "group add" to this after
+        # making yourself superop!)
+        %w[group\ del priv\ add priv\ del kick op topic voice ban mute].each do |x|
+            db.execute('insert into Privileges values ("disallow @@all", ?)', x + '*')
+        end
+        db.execute 'insert into Privileges values "allow @superop", "*"'
     end
 
     on :message, /(.*)/ do |m, txt|
@@ -176,6 +182,13 @@ bot = Cinch::Bot.new do
                                     stdin.puts m.user.nick
                                 when '$REQUEST_WHOIS'
                                     stdin.puts query_whois m.user.nick
+                                when /^\$REQUEST_WHOIS ([^ ]+)$/
+                                    stdin.puts query_whois $1
+                                when '$REQUEST_CHANNEL'
+                                    stdin.puts m.channel.name
+                                when /^\$REQUEST_SEND_CMD (.+)$/
+                                    puts 'command requested'
+                                    bot.irc.send $1
                                 else
                                     reply m, line
                                 end

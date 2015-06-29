@@ -49,6 +49,27 @@ else
             '(this must be the name found via /whois, not the nick), and ' +
             '!group DEL {groupname} {username} to do the reverse. !group ' +
             'LIST is self-explanatory.'
+    when 'kick'
+        puts 'Kick a user, !kick {nick}. Use !ban if you would also like ' +
+            'the user to not be able to reenter the channel.'
+    when 'op'
+        puts 'Add or remove operator status for a user, !op {ADD|DEL} ' +
+            '{nick}. To op yourself, use the shorthand form of just !op.'
+    when 'voice'
+        puts 'Give or take voice from a user, !voice {ADD|DEL} {nick}. To ' +
+            'let only voiced users talk, use !voice ONLY ON, and !voice ' +
+            'ONLY OFF to reverse this.'
+    when 'mute'
+        puts 'Mute or unmute a user, !mute {ADD|DEL} {mask}. To list all ' +
+            'muted users, !mute LIST. See also !help mask.'
+    when 'ban'
+        puts 'Ban or unban a user, !ban {ADD|DEL} {mask}. To list all ' +
+            'banned users, !ban LIST. See also !help mask.'
+    when 'mask'
+        puts 'A mask can be either a nick (MyNick) or a username ' +
+            '(*!MyUserName).'
+    when 'topic'
+        puts 'Change the topic, !topic {text}.'
     when 'restart'
         puts 'Restarts the bot.'
     when 'help'
