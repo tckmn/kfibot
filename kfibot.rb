@@ -158,7 +158,7 @@ bot = Cinch::Bot.new do
                 ^(?:(?:the|a)\s+)?(?<q>[^ ]+)\?+$
             /xi)
         if q
-            txt = "!#{q['q']}?"
+            txt = "!#{q['q'].downcase}?"
             suppress_unknown = true
         end
 
