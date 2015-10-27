@@ -139,7 +139,7 @@ bot = Cinch::Bot.new do
         %w[group\ del priv\ add priv\ del kick op topic voice ban mute].each do |x|
             db.execute('insert into Privileges values ("disallow @@all", ?)', x + '*')
         end
-        db.execute 'insert into Privileges values "allow @superop", "*"'
+        db.execute 'insert into Privileges values ("allow @superop", "*")'
     end
 
     on :message, /(.*)/ do |m, txt|
